@@ -1,3 +1,7 @@
+## Installation
+
+The module is not packaged, simply copy the scripts/functions you need to your working directory/notebook and import it locally.
+
 ## Toolbox
 
 > A toolbox for geospatial related tasks, but only one tool exists so far.
