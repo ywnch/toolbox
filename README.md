@@ -2,11 +2,13 @@
 
 The module is not packaged, simply copy the scripts/functions you need to your working directory/notebook and import it locally.
 
+Do check the `requirements.txt` (non-exhaustive) for the applicable versions of key packages.
+
 ## Toolbox
 
 > A toolbox for geospatial related tasks, but only one tool exists so far.
 
-- `connect_poi()`: integrate a set of POIs onto the road network based on the nearest projected point
+- `connect_poi()`: integrate a set of POIs onto the road network based on the nearest projected point. Use case and example illustrated in `demo_connect_poi.ipynb`.
 
 ## Segment Rail Routes
 
