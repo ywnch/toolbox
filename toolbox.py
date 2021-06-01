@@ -222,7 +222,7 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
     print("Updating internal nodes...")
     nodes_meter, _ = update_nodes(nodes_meter, list(pois_meter['pp']), ptype='pp', meter_epsg=meter_epsg)
     nodes_coord = nodes_meter['geometry'].map(lambda x: x.coords[0])
-    nodes_id_dict = dict(zip(nodes_coord, nodes_meter['osmid'].astype(int)))
+    nodes_id_dict = dict(zip(nodes_coord, nodes_meter['osmid'].astype('Int64')))
 
     # 1-3: update internal edges (split line segments)
     print("Updating internal edges...")
