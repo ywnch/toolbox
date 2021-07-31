@@ -6,7 +6,7 @@ Do check the `requirements.txt` (non-exhaustive) for the applicable versions of 
 
 ## Toolbox
 
-> A toolbox for geospatial related tasks, but only one tool exists so far.
+> A toolbox for geospatial related tasks, but only one tool exists so far. It is accompanied with this [blog post](https://towardsdatascience.com/connecting-pois-to-a-road-network-358a81447944).
 
 - `connect_poi()`: integrate a set of POIs onto the road network based on the nearest projected point. Use case and example illustrated in `demo_connect_poi.ipynb`.
 
