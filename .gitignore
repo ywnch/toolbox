@@ -1,5 +1,7 @@
 .ipynb_checkpoints/
 .idea/
+.venv/
+cache/
 .DS_Store
 __pycache__/
 data/
