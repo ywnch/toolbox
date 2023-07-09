@@ -84,7 +84,18 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
         line = snap(line, pps, 1e-8)  # slow?
 
         try:
-            new_lines = list(split(line, pps))  # split into segments
+            split_result = split(line, pps)  # split into segments
+
+            # Convert the GeometryCollection to a list of LineString objects
+            new_lines = []
+            for geom in split_result.geoms:
+                if isinstance(geom, LineString):
+                    new_lines.append(geom)
+                elif isinstance(geom, MultiLineString):
+                    new_lines.extend([line for line in geom])
+                else:
+                    print("Unknown geometry type when splitting line: {}".format(geom))
+
             return new_lines
         except TypeError as e:
             print('Error when splitting line: {}\n{}\n{}\n'.format(e, line, pps))
@@ -154,11 +165,11 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
 
         # update features (a bit slow)
         new_edges['length'] = [l.length for l in new_lines]
-        new_edges['from'] = new_edges['geometry'].map(
+        new_edges['v'] = new_edges['geometry'].map(
             lambda x: nodes_id_dict.get(list(x.coords)[0], None))
-        new_edges['to'] = new_edges['geometry'].map(
+        new_edges['u'] = new_edges['geometry'].map(
             lambda x: nodes_id_dict.get(list(x.coords)[-1], None))
-        new_edges['osmid'] = ['_'.join(list(map(str, s))) for s in zip(new_edges['from'], new_edges['to'])]
+        new_edges['osmid'] = ['_'.join(list(map(str, s))) for s in zip(new_edges['v'], new_edges['u'])]
 
         # remember to reindex to prevent duplication when concat
         start = edges.index[-1] + 1
@@ -191,6 +202,12 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
     edge_highway = 'projected_footway'
     osmid_prefix = 9990000000
 
+    # Check key_column values are not present in osmid
+    if not set(nodes['osmid']).isdisjoint(set(pois[key_col])):
+        common_values = set(nodes['osmid']).intersection(set(pois[key_col]))
+        raise ValueError(f"The column 'osmid' in the 'nodes' set and the column '{key_col}' in the 'pois' set have common elements. "
+                         f"This is not allowed. The common elements are: {common_values}")
+
     # convert CRS
     pois_meter = pois.to_crs(epsg=meter_epsg)
     nodes_meter = nodes.to_crs(epsg=meter_epsg)
@@ -199,7 +216,7 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
     # build rtree
     print("Building rtree...")
     Rtree = rtree.index.Index()
-    [Rtree.insert(fid, geom.bounds) for fid, geom in edges_meter['geometry'].iteritems()]
+    [Rtree.insert(fid, geom.bounds) for fid, geom in edges_meter['geometry'].items()]
 
     ## STAGE 1: interpolation
     # 1-1: update external nodes (pois)
@@ -259,8 +276,8 @@ def connect_poi(pois, nodes, edges, key_col=None, path=None, threshold=200, knn=
         print("Nodes count:", len(nodes_meter))
         print("Node coordinates key count:", len(nodes_id_dict))
     # - examine missing nodes
-    print("Missing 'from' nodes:", len(edges[edges['from'] == None]))
-    print("Missing 'to' nodes:", len(edges[edges['to'] == None]))
+    print("Missing 'v' nodes:", sum(edges['v'].isna()))
+    print("Missing 'u' nodes:", sum(edges['u'].isna()))
 
     # save and return
     if path:
