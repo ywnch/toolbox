@@ -1,5 +1,5 @@
 Fiona==1.8.13.post1
-geopandas==0.8.1
+geopandas==1.1.2
 geopy==1.11.0
 networkx==2.4
 numpy==1.19.1
